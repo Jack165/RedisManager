@@ -1,0 +1,3 @@
+# RedisManager
+
+go版redis可视化操作界面,通过gtk跨和go的跨平台实现跨平台的redis可视化客户端
