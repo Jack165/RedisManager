@@ -9,21 +9,26 @@ import (
 var ctx = context.Background()
 
 func main() {
-	//ExampleClient()
+
+	//获取redis连接
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "139.196.38.232:6379",
 		Password: "adminfeng@.", // no password set
 		DB:       0,             // use default DB
 	})
-	//val,error :=rdb.Get(ctx,"*").Result()
+
+	//获取key的数量
 	keysize := rdb.DBSize(ctx)
 	print("数量：" + keysize.String())
-	val, _ := rdb.Scan(ctx, 10, "*", keysize.Val()).Val()
+	//获取所有key的值，游标设置0
+	val, _ := rdb.Scan(ctx, 0, "*", keysize.Val()).Val()
 	for i := 0; i < len(val); i++ {
-		//查询key
+		//查询key，打印
 		fmt.Println("key--->", val[i])
+		//获取key对应值的的类型
 		valuetype := rdb.Type(ctx, val[i])
 		ts, _ := valuetype.Result()
+		//如果是list类型就遍历显示
 		if ts == "list" {
 			fmt.Println("类型是list")
 			len := rdb.LLen(ctx, val[i]).Val()
@@ -32,41 +37,11 @@ func main() {
 				fmt.Println(i) // [val5 val4 val3 val2 val1 val99 val100]
 			}
 		} else {
+			//如果不是list就直接打印
 			value := rdb.Get(ctx, val[i])
 
 			fmt.Println("value-->", value)
 		}
 
 	}
-
-}
-
-func ExampleClient() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "139.196.38.232:6379",
-		Password: "adminfeng@.", // no password set
-		DB:       0,             // use default DB
-	})
-
-	err := rdb.Set(ctx, "key", "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	val, err := rdb.Get(ctx, "key").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("key", val)
-
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("key2", val2)
-	}
-	// Output: key value
-	// key2 does not exist
 }
