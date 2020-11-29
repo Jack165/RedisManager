@@ -11,13 +11,19 @@ var ctx = context.Background()
 
 func main() {
 
+	fmt.Println(buildDbStr("139.196.38.232:6379", "adminfeng@.", 0))
+}
+
+func buildDbStr(address, password string, db int) string {
+
 	//获取redis连接
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "139.196.38.232:6379",
-		Password: "adminfeng@.", // no password set
-		DB:       0,             // use default DB
+		Addr:     address,
+		Password: password, // no password set
+		DB:       db,       // use default DB
 	})
 
+	rdb.ConfigGet(ctx, "databases").Val()
 	//获取key的数量
 	keysize := rdb.DBSize(ctx)
 	//获取所有key的值，游标设置0
@@ -90,7 +96,5 @@ func main() {
 		}
 	}
 	resultStr = resultStr[0:len(resultStr)-1] + "}"
-
-	fmt.Println(resultStr)
-
+	return resultStr
 }
