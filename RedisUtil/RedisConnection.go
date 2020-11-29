@@ -57,18 +57,20 @@ func main() {
 			resultStr += "\"" + key + "\"" + ":" + str
 			break
 		case "hash":
-			hashStr := "["
+			hashStr := ""
 			hashKeys := rdb.HKeys(ctx, key).Val()
 			for _, i := range hashKeys {
 				//fmt.Println(i)
 				hashValues := rdb.HGetAll(ctx, key).Val()
+				hashStr += "\"" + i + "\":["
 				for _, j := range hashValues {
-					hashStr += "{\"" + i + "\":\"" + j + "\"},"
+					hashStr += "\"" + j + "\","
 					//fmt.Println( j)
 				}
+				hashStr = hashStr[0 : len(hashStr)-1]
+				hashStr += "],"
 			}
-			hashStr = hashStr[0 : len(hashStr)-1]
-			hashStr += "]"
+
 			resultStr += hashStr
 
 		default:
