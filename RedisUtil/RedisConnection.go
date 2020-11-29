@@ -44,9 +44,9 @@ func main() {
 			resultStr += "\"" + key + "\"" + ":" + listStr
 			break
 		case "set": //set类型
-			zsetLen := rdb.LLen(ctx, key).Val()
+			setLen := rdb.LLen(ctx, key).Val()
 			setList := rdb.SMembers(ctx, key).Val()
-			setSlice := make([]string, zsetLen)
+			setSlice := make([]string, setLen)
 			var str = "["
 			for _, i := range setList {
 				setSlice = append(setSlice, i)
@@ -56,7 +56,7 @@ func main() {
 			str += "],"
 			resultStr += "\"" + key + "\"" + ":" + str
 			break
-		case "hash":
+		case "hash": //hash类型
 			hashStr := ""
 			hashKeys := rdb.HKeys(ctx, key).Val()
 			for _, i := range hashKeys {
@@ -72,7 +72,18 @@ func main() {
 			}
 
 			resultStr += hashStr
-
+			break
+		case "zset":
+			zsetStr := "\"" + key + "\":["
+			zsetlen := rdb.LLen(ctx, key).Val()
+			zsetValue := rdb.ZRange(ctx, key, 0, zsetlen).Val()
+			for i, _ := range zsetValue {
+				zsetStr += "\"" + zsetValue[i] + "\","
+			}
+			zsetStr = zsetStr[0 : len(zsetStr)-1]
+			zsetStr += "],"
+			resultStr += zsetStr
+			break
 		default:
 			value := rdb.Get(ctx, key).Val()
 			resultStr += "\"" + key + "\"" + ":" + "\"" + value + "\","
